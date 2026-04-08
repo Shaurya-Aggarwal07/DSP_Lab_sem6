@@ -1,0 +1,69 @@
+clc; clear; close all;
+
+fs = 1000;
+t = 0:1/fs:1;
+N = length(t);
+
+x = sin(2*pi*50*t) + sin(2*pi*100*t) + sin(2*pi*150*t) + sin(2*pi*200*t);
+
+% ---------------- Spectrum of input ----------------
+X = abs(fft(x,1024));
+f = (0:1023)*(fs/1024);
+
+figure;
+plot(f,X); xlim([0 fs/2]);
+title('Spectrum of Input Signal');
+xlabel('Frequency (Hz)'); ylabel('|X(f)|'); grid on;
+
+%---------------- Filter Design (Bandstop) ----------------
+M = 100;
+
+notch = [90 160]/(fs/2);   
+h = fir1(M, notch, 'stop', hamming(M+1));
+
+% --------------------------
+[H,w] = freqz(h,1,1024,fs);
+
+figure;
+plot(w, abs(H));
+title('Frequency Response of Designed Filter');
+xlabel('Frequency (Hz)'); ylabel('|H(f)|'); grid on;
+
+%% ---------------- Filtering using filter() ----------------
+y = filter(h,1,x);
+
+%% ---------------- Manual Convolution ----------------
+Lx = length(x);
+Lh = length(h);
+
+y_manual = zeros(1, Lx+Lh-1);
+
+for n = 1:(Lx+Lh-1)
+    for k = 1:Lh
+        if (n-k+1 > 0) && (n-k+1 <= Lx)
+            y_manual(n) = y_manual(n) + h(k)*x(n-k+1);
+        end
+    end
+end
+
+% Trim to match filter output length
+y_manual = y_manual(1:Lx);
+
+%% ---------------- Spectrum of outputs ----------------
+Y = abs(fft(y,1024));
+Yman = abs(fft(y_manual,1024));
+
+figure;
+
+subplot(3,1,1);
+plot(f,X); xlim([0 fs/2]);
+title('Input Spectrum'); grid on;
+
+subplot(3,1,2);
+plot(f,Y); xlim([0 fs/2]);
+title('Filtered Spectrum (filter)'); grid on;
+
+subplot(3,1,3);
+plot(f,Yman); xlim([0 fs/2]);
+title('Filtered Spectrum (manual convolution)'); 
+grid on;

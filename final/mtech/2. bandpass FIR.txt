@@ -1,0 +1,64 @@
+clc; clear; close all;
+
+%% ---------------- Specifications ----------------
+Fs = 8000;
+
+Fstop1 = 1200;
+Fpass1 = 1400;
+Fpass2 = 1600;
+Fstop2 = 1800;
+
+Rp = 1;      % Passband ripple (dB)
+Rs = 60;     % Stopband attenuation (dB)
+
+%% ---------------- FIR Filter Design (Equiripple) ----------------
+% Convert to normalized frequency
+f = [0 Fstop1 Fpass1 Fpass2 Fstop2 Fs/2]/(Fs/2);
+a = [0 0 1 1 0 0];
+
+% Convert ripple specs
+dev = [10^(-Rs/20) (10^(Rp/20)-1)/(10^(Rp/20)+1) 10^(-Rs/20)];
+
+% Design filter
+h = firpmord([Fstop1 Fpass1 Fpass2 Fstop2],[0 1 0],dev,Fs);
+b = firpm(h(1), h(2), h(3));
+
+%% ---------------- Frequency Response ----------------
+[H,w] = freqz(b,1,1024,Fs);
+
+figure;
+plot(w, 20*log10(abs(H)));
+title('Frequency Response of FIR Bandpass Filter');
+xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
+grid on; xlim([0 Fs/2]);
+
+%% ---------------- Load Audio ----------------
+[x, fs_audio] = audioread('Music.wav');
+
+%% ---------------- Input Spectrum ----------------
+Nfft = 2048;
+f_axis = (0:Nfft-1)*(Fs/Nfft);
+
+X = fft(x, Nfft);
+
+figure;
+subplot(2,1,1);
+plot(f_axis, abs(X));
+title('Input Spectrum');
+xlabel('Frequency (Hz)'); ylabel('|X(f)|');
+xlim([0 Fs/2]); grid on;
+
+%% ---------------- Filtering ----------------
+y = filter(b,1,x);
+
+%% ---------------- Output Spectrum ----------------
+Y = fft(y, Nfft);
+
+subplot(2,1,2);
+plot(f_axis, abs(Y));
+title('Filtered Output Spectrum');
+xlabel('Frequency (Hz)'); ylabel('|Y(f)|');
+xlim([0 Fs/2]); grid on;
+
+%% ---------------- Save Output ----------------
+audiowrite('filtered_output.wav', y, Fs);

@@ -1,0 +1,60 @@
+clc; clear; close all;
+
+% -----------------------------
+fs = 4000; % Hz
+N = 6000;
+n = 0:N-1;
+
+% H(z) = z^-3 - 0.3z^-4 + 0.2z^-5
+h = [0 0 0 1 -0.3 0.2];
+
+figure;
+freqz(h,1,1024,fs);
+title('Magnitude and Phase Response of H(z)');
+
+% -----------------------------
+
+f0 = 500;
+x = sin(2*pi*f0*n/fs);
+
+d = conv(x, h, 'same');
+
+d_n2 = [0 0 d(1:end-2)];
+d_n1 = [0 d(1:end-1)];
+y = d_n2 + 0.8*(d_n2.^2) - 0.4*(d_n1.^3);
+
+% Spectrum
+Y = fft(y);
+
+f_axis = (0:N-1)*fs/N;
+
+figure;
+plot(f_axis, abs(Y));
+xlim([0 fs/2]);
+title('Spectrum of y(n) (Single Tone)');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
+grid on;
+
+% -----------------------------
+% Multi-tone input
+
+f1 = 100; f2 = 200; f3 = 300;
+x = sin(2*pi*f1*n/fs) + sin(2*pi*f2*n/fs) + sin(2*pi*f3*n/fs);
+
+d = conv(x, h, 'same');
+
+d_n2 = [0 0 d(1:end-2)];
+d_n1 = [0 d(1:end-1)];
+y_multi = d_n2 + 0.8*(d_n2.^2) - 0.4*(d_n1.^3);
+
+Y_multi = fft(y_multi);
+
+figure;
+plot(f_axis, abs(Y_multi));
+xlim([0 fs/2]);
+title('Spectrum of y(n) (Multi-tone)');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
+grid on;
+% ---------------------------------
