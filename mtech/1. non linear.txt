@@ -1,0 +1,77 @@
+clc;
+clear;
+close all;
+
+% -----------------------------
+b = [0 0 0 1 -0.3 0.5];  
+a = 1;
+
+[H, w] = freqz(b, a, 1024);
+fs = 4000;
+f = w * fs / (2*pi);
+
+figure;
+subplot(2,1,1);
+plot(f, abs(H));
+title('Magnitude Response of H(z)');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+grid on;
+
+subplot(2,1,2);
+plot(f, angle(H));
+title('Phase Response of H(z)');
+xlabel('Frequency (Hz)');
+ylabel('Phase');
+grid on;
+
+% -----------------------------
+
+fs = 4000;
+f0 = 500;
+N = 8192;
+n = 0:N-1;
+
+x = sin(2*pi*f0*n/fs);
+d = conv(x, b, 'same');
+d2 = [0 0 d(1:end-2)];
+y = d2 + 0.3*(d2.^2) + 0.8*(d2.^3);
+
+% Spectrum
+Y = fft(y);
+
+P = abs(Y/N);
+P = P(1:N/2+1);
+P(2:end-1) = 2*P(2:end-1);
+
+f_axis = fs*(0:(N/2))/N;
+
+figure;
+plot(f_axis, P);
+title('Spectrum of y(n) (Single Tone)');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
+grid on;
+
+% -----------------------------
+% Part 3: Multi-tone input
+
+f1 = 100; f2 = 200; f3 = 300;
+x = sin(2*pi*f1*n/fs) + sin(2*pi*f2*n/fs) + sin(2*pi*f3*n/fs);
+
+d = conv(x, b, 'same');
+d2 = [0 0 d(1:end-2)];
+y = d2 + 0.3*(d2.^2) + 0.8*(d2.^3);
+
+Y = fft(y);
+
+P = abs(Y/N);
+P = P(1:N/2+1);
+P(2:end-1) = 2*P(2:end-1);
+
+figure;
+plot(f_axis, P);
+title('Spectrum of y(n) (Multi-tone)');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
+grid on;

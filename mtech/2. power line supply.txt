@@ -1,0 +1,26 @@
+clc;
+clear;
+close all;
+% -----------------------------
+fs = 1000;              % Sampling frequency
+t = 0:1/fs:1;           % Time vector
+f0 = 50;                % Fundamental freq
+
+% -----------------------------
+x = sin(2*pi*f0*t)+ sin(2*pi*2*f0*t)+ sin(2*pi*3*f0*t);     
+figure;
+pwelch(x, [], [], [], fs);
+title('Spectrum of Original Signal');
+
+% -----------------------------
+[b,a] = butter(4, [120 180]/(fs/2), 'bandpass');
+
+y = filter(b, a, x);
+figure;
+pwelch(y, [], [], [], fs);
+title('Spectrum of Filtered Signal');
+
+% -----------------------------
+figure;
+freqz(b, a, 1024, fs);
+title('Frequency Response of Designed Filter');

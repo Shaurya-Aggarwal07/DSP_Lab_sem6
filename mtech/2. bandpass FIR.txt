@@ -1,0 +1,15 @@
+fs=8000; 
+t=0:1/fs:1; 
+
+[y,Fs]=audioread("Music.wav"); 
+b=ky.Numerator 
+
+figure; 
+pwelch(y,[],[],[],fs); 
+title('Audio signal'); 
+
+y1=filter(ky,y); 
+
+figure; 
+pwelch(y1,[],[],[],fs); 
+title('output signal');

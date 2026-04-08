@@ -1,0 +1,61 @@
+clc;
+clear;
+close all;
+
+% -----------------------------
+% Parameters
+N = 2000;
+mean = 0;
+var = 2;
+sigma = sqrt(var);
+fs = 4000;
+
+a_values = 0.1:0.2:0.9;
+
+figure;
+
+for k = 1:length(a_values)
+    a = a_values(k);
+
+    w = sigma * randn(1, N);
+    y = zeros(1, N);
+
+    for n = 2:N
+        y(n) = a*y(n-1) + w(n);
+    end
+
+    subplot(length(a_values),1,k);
+    [pxx,f] = pwelch(y,[],[],[],fs);
+    plot(f,10*log10(pxx));
+    title(['PSD for \alpha = ', num2str(a)]);
+    grid on;
+end
+
+% --------------------------------------
+
+a = 0.9; 
+b = 1;          
+den = [1 -a];   
+  
+[imp, t] = impz(b, den, 50);  
+figure; 
+stem(t, imp); 
+title('Impulse Response for a = 0.9'); 
+xlabel('n'); 
+ylabel('h(n)'); 
+grid on;   
+  
+[H, w] = freqz(b, den, 512); 
+figure; 
+plot(w/pi, abs(H)); 
+title('Frequency Response for a = 0.9'); 
+xlabel('Normalized Frequency'); 
+ylabel('Magnitude'); 
+grid on;  
+ 
+figure; 
+plot(w/pi, angle(H)); 
+title('Frequency Response for a = 0.9'); 
+xlabel('Normalized Frequency'); 
+ylabel('Phase'); 
+grid on; 
