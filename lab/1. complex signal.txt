@@ -1,0 +1,14 @@
+n = -10:10;
+y = zeros(1,length(n));
+
+for i=1:length(n)
+	y(i) = exp(n(i)*(-0.1+1*j*0.3));
+end
+
+yr = real(y);
+yi = imag(y);
+
+figure;
+stem(n,yr);
+stem(n,yi);
+grid on;

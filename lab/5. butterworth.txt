@@ -1,0 +1,66 @@
+Wp = 0.2*pi;    % Passband frequency
+Ws = 0.3*pi;    % Stopband frequency
+Rp = 7;         % Passband ripple (dB)
+As = 16;        % Stopband attenuation (dB)
+
+% Order calculation
+[N,Wc] = buttord(Wp, Ws, Rp, As, 's');
+
+% Analog Butterworth filter
+[b,a] = butter(N, Wc, 's');
+
+% Frequency response
+freqs(b,a);
+title('Analog Butterworth Lowpass Filter');
+grid on;
+
+% ------------------------
+
+Wp = 0.2*pi;
+Ws = 0.3*pi;
+Rp = 1;
+As = 15;
+T  = 1;
+
+% Convert to analog frequencies
+Wp_a = Wp/T;
+Ws_a = Ws/T;
+
+% Order
+[N,Wc] = buttord(Wp_a, Ws_a, Rp, As, 's');
+
+% Analog filter
+[b,a] = butter(N, Wc, 's');
+
+% Impulse invariance transformation
+[bd,ad] = impinvar(b,a,1/T);
+
+% Digital frequency response
+freqz(bd,ad);
+title('Digital Butterworth Filter (Impulse Invariance)');
+grid on;
+
+% -----------------------------
+
+Wp = 0.2*pi;
+Ws = 0.3*pi;
+Rp = 1;
+As = 15;
+T  = 1;
+
+% Prewarping
+Wp_a = (2/T)*tan(Wp/2);
+Ws_a = (2/T)*tan(Ws/2);
+
+% Order
+[N,Wc] = buttord(Wp_a, Ws_a, Rp, As, 's');
+
+% Analog filter
+[b,a] = butter(N, Wc, 's');
+
+% Bilinear transform
+[bd,ad] = bilinear(b,a,1/T);
+
+freqz(bd,ad);
+title('Butterworth Filter using Bilinear Transformation');
+grid on;

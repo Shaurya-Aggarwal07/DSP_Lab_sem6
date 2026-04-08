@@ -1,0 +1,8 @@
+b = [1.55 1.95 2.15]; % inputs
+a = [ 1 -0.25 0.45]; % outputs
+[H,w] = freqz(b,a,1024);
+
+figure;
+plot(w/pi,abs(H));
+plot(w/pi,angle(H));
+grid on;

@@ -1,0 +1,23 @@
+x = [1 2 3 4];
+h = [1 2];
+
+nx = length(x);
+nh = length(h);
+N = max(nx,nh);
+
+x = [x zeros(1,N-nx)]
+h = [x zeros(1,N-nh)]
+
+y = zeros(1,N);
+
+for n=1:N
+	for k=1:N
+		idx = 1 + mod(n-k,N);
+		y(n) = y(n) + x(k)*h(idx);
+	end
+end
+
+disp(y);
+figure;
+grid on;
+stem(y);

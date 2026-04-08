@@ -1,0 +1,11 @@
+n=0:50;
+y = zeros(1,length(n));
+
+for i=1:length(n)
+	w =  randn;
+	y(i) = (0.2*w)+cos(0.04*pi*i);
+end
+
+figure;
+stem(n,y);
+grid on;
