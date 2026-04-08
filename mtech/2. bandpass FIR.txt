@@ -1,6 +1,5 @@
 clc; clear; close all;
 
-%% ---------------- Specifications ----------------
 Fs = 8000;
 
 Fstop1 = 1200;
@@ -8,57 +7,60 @@ Fpass1 = 1400;
 Fpass2 = 1600;
 Fstop2 = 1800;
 
-Rp = 1;      % Passband ripple (dB)
-Rs = 60;     % Stopband attenuation (dB)
+Rp = 1;
+Rs = 60;
 
-%% ---------------- FIR Filter Design (Equiripple) ----------------
-% Convert to normalized frequency
-f = [0 Fstop1 Fpass1 Fpass2 Fstop2 Fs/2]/(Fs/2);
-a = [0 0 1 1 0 0];
-
-% Convert ripple specs
+% Ripple conversion
 dev = [10^(-Rs/20) (10^(Rp/20)-1)/(10^(Rp/20)+1) 10^(-Rs/20)];
 
-% Design filter
-h = firpmord([Fstop1 Fpass1 Fpass2 Fstop2],[0 1 0],dev,Fs);
-b = firpm(h(1), h(2), h(3));
+% Correct FIR design
+[N, Fo, Ao, W] = firpmord([Fstop1 Fpass1 Fpass2 Fstop2],[0 1 0],dev,Fs);
+b = firpm(N, Fo, Ao, W);
 
-%% ---------------- Frequency Response ----------------
+% Frequency response
 [H,w] = freqz(b,1,1024,Fs);
 
 figure;
 plot(w, 20*log10(abs(H)));
 title('Frequency Response of FIR Bandpass Filter');
-xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
 grid on; xlim([0 Fs/2]);
 
-%% ---------------- Load Audio ----------------
+% Load audio
 [x, fs_audio] = audioread('Music.wav');
 
-%% ---------------- Input Spectrum ----------------
-Nfft = 2048;
-f_axis = (0:Nfft-1)*(Fs/Nfft);
+% Match sampling rate
+if fs_audio ~= Fs
+    x = resample(x, Fs, fs_audio);
+end
 
+% FFT
+Nfft = 2048;
 X = fft(x, Nfft);
+
+f_axis = (0:Nfft/2-1)*(Fs/Nfft);
 
 figure;
 subplot(2,1,1);
-plot(f_axis, abs(X));
+plot(f_axis, abs(X(1:Nfft/2)));
 title('Input Spectrum');
-xlabel('Frequency (Hz)'); ylabel('|X(f)|');
-xlim([0 Fs/2]); grid on;
+xlabel('Frequency (Hz)');
+ylabel('|X(f)|');
+grid on;
 
-%% ---------------- Filtering ----------------
+% Filtering
 y = filter(b,1,x);
 
-%% ---------------- Output Spectrum ----------------
+% Output spectrum
 Y = fft(y, Nfft);
 
 subplot(2,1,2);
-plot(f_axis, abs(Y));
+plot(f_axis, abs(Y(1:Nfft/2)));
 title('Filtered Output Spectrum');
-xlabel('Frequency (Hz)'); ylabel('|Y(f)|');
-xlim([0 Fs/2]); grid on;
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
+grid on;
 
-%% ---------------- Save Output ----------------
+% Save
 audiowrite('filtered_output.wav', y, Fs);
