@@ -1,0 +1,51 @@
+Wp = 0.2*pi;    
+Ws = 0.3*pi;   
+Rp = 7;       
+As = 16;
+
+[N,Wc] = buttord(Wp, Ws, Rp, As, 's');
+[b,a] = butter(N, Wc, 's');
+
+freqs(b,a);
+title('Analog Butterworth Lowpass Filter');
+grid on;
+% ------------------------
+
+Wp = 0.2*pi;
+Ws = 0.3*pi;
+Rp = 1;
+As = 15;
+
+T  = 1;
+Wp_a = Wp/T;
+Ws_a = Ws/T;
+
+[N,Wc] = buttord(Wp_a, Ws_a, Rp, As, 's');
+[b,a] = butter(N, Wc, 's');
+
+[bd,ad] = impinvar(b,a,1/T);
+
+freqz(bd,ad);
+title('Digital Butterworth Filter (Impulse Invariance)');
+grid on;
+% -----------------------------
+
+Wp = 0.2*pi;
+Ws = 0.3*pi;
+Rp = 1;
+As = 15;
+T  = 1;
+
+% Prewarping
+Wp_a = (2/T)*tan(Wp/2);
+Ws_a = (2/T)*tan(Ws/2);
+
+[N,Wc] = buttord(Wp_a, Ws_a, Rp, As, 's');
+[b,a] = butter(N, Wc, 's');
+
+[bd,ad] = bilinear(b,a,1/T);
+
+freqz(bd,ad);
+title('Digital Butterworth Filter (Bilinear Transformation)');
+grid on;
+% --------------------------------

@@ -1,0 +1,112 @@
+% DIT FFT-
+clc; clear;
+
+x = [0 1 2 3];
+N = length(x);
+
+x = x(bitrevorder(1:N));
+
+X = zeros(1,N);
+X(1) = x(1) + x(2);
+X(2) = x(1) - x(2);
+X(3) = x(3) + x(4);
+X(4) = x(3) - x(4);
+
+W4_0 = 1;
+W4_1 = exp(-1j*2*pi/4);
+
+Y = zeros(1,N);
+Y(1) = X(1) + X(3);
+Y(3) = X(1) - X(3);
+Y(2) = X(2) + W4_1*X(4);
+Y(4) = X(2) - W4_1*X(4);
+
+disp('DIT FFT Output X[k] =');
+disp(Y);
+
+% ---------------------------------
+% DIF FFT- 
+clc; clear;
+
+x = [0 1 2 3];
+N = length(x);
+
+W4_1 = exp(-1j*2*pi/4);
+
+X = zeros(1,N);
+X(1) = x(1) + x(3);
+X(3) = x(1) - x(3);
+X(2) = x(2) + x(4);
+X(4) = (x(2) - x(4)) * W4_1;
+
+Y = zeros(1,N);
+Y(1) = X(1) + X(2);
+Y(2) = X(1) - X(2);
+Y(3) = X(3) + X(4);
+Y(4) = X(3) - X(4);
+
+Y = Y(bitrevorder(1:N));
+
+disp('DIF FFT Output X[k] =');
+disp(Y);
+% ----------------------------
+% Dit ifft-
+
+clc; clear;
+
+X = [6  -2+2j  -2  -2-2j];
+N = length(X);
+
+X = X(bitrevorder(1:N));
+
+% Stage 1
+Y = zeros(1,N);
+Y(1) = X(1) + X(2);
+Y(2) = X(1) - X(2);
+Y(3) = X(3) + X(4);
+Y(4) = X(3) - X(4);
+
+% Twiddle factor
+W4_1 = exp(1j*2*pi/4);
+
+% Stage 2
+x = zeros(1,N);
+x(1) = Y(1) + Y(3);
+x(3) = Y(1) - Y(3);
+x(2) = Y(2) + W4_1*Y(4);
+x(4) = Y(2) - W4_1*Y(4);
+
+% Scaling
+x = x / N;
+
+disp('DIT IFFT Output x[n] =');
+disp(x);
+% -----------------------------------
+clc; clear;
+
+X = [6  -2+2j  -2  -2-2j];
+N = length(X);
+
+W4_1 = exp(1j*2*pi/4);
+
+Y = zeros(1,N);
+Y(1) = X(1) + X(3);
+Y(3) = X(1) - X(3);
+Y(2) = X(2) + X(4);
+Y(4) = (X(2) - X(4)) * W4_1;
+
+x = zeros(1,N);
+x(1) = Y(1) + Y(2);
+x(2) = Y(1) - Y(2);
+x(3) = Y(3) + Y(4);
+x(4) = Y(3) - Y(4);
+
+% Bit reversal of output
+x = x(bitrevorder(1:N));
+
+% Scaling
+x = x / N;
+
+disp('DIF IFFT Output x[n] =');
+disp(x);
+% --------------------------------------
