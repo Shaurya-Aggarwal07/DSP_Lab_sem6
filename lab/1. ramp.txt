@@ -1,4 +1,4 @@
-t=-7:0.001:7;
+t = -7:0.001:7;
 
 y = zeros(1,size(t));
 for i=1:length(t)

@@ -1,0 +1,49 @@
+clc; 
+clear; 
+close all;
+
+% -------------------------------------------
+M = 51;
+n = 0:M-1;
+p = n - (M-1)/2;
+fc = 0.25;          
+
+z = sin(2*pi*fc*p) ./ (pi*p);
+z((M+1)/2) = 2*fc;
+
+figure;
+stem(n,z); 
+title('Truncated Impulse Response');
+%-------------------------------------------
+[H,w] = freqz(z,1,1024);
+
+figure;
+plot(w/pi, abs(H)); 
+title('Ideal Frequency Response');
+
+% ------------------------------------------
+wb = blackman(M)';
+
+figure;
+plot(n,wb); 
+title('Blackman Window');
+
+% -----------------------------------------
+% blackman multiplied with sinc function
+xb = z .* wb;
+figure;
+plot(n,xb);
+title('Blackman Window Multiplied with sinc function');
+
+% ----------------------------------------------------
+% Frequency response of windowed blackman function
+[Hb,~] = freqz(xb,1,1024);
+figure;
+plot(w/pi, abs(Hb)); 
+title('Blackman Freq Response');
+
+figure;
+plot(w/pi, 20*log10(abs(Hb))); 
+title('Blackman in dB');
+
+% -------------------------------------------

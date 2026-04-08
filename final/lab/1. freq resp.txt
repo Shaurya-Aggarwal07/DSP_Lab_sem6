@@ -1,9 +1,0 @@
-b = [1.55 1.95 2.15]; % inputs: x
-a = [1 -0.25 0.45]; % outputs: y
-
-[H,w] = freqz(b,a,1024); % digital domain
-
-figure;
-plot(w/pi, abs(H));
-plot(w/pi, angle(H));
-grid on;

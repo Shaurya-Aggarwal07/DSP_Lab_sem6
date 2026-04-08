@@ -18,6 +18,7 @@ for n=1:N
 end
 
 disp(y);
+
 figure;
 grid on;
 stem(y);

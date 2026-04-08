@@ -18,6 +18,7 @@ end
 y2 = conv(x,h);
 disp(y);
 disp(y2);
+
 figure;
 grid on;
 stem(y);

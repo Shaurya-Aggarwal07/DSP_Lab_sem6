@@ -1,61 +1,61 @@
-clc;
-clear;
-close all;
+clc; clear; close all;
 
-% -----------------------------
-% Parameters
+% -------------------- (a) --------------------
 N = 2000;
-mean = 0;
-var = 2;
-sigma = sqrt(var);
-fs = 4000;
+var_w = 2;
+alphas = 0.1:0.2:0.9;
 
-a_values = 0.1:0.2:0.9;
+w = sqrt(var_w) * randn(N,1);
 
 figure;
 
-for k = 1:length(a_values)
-    a = a_values(k);
+for k = 1:length(alphas)
+    a = alphas(k);
 
-    w = sigma * randn(1, N);
-    y = zeros(1, N);
+    num = 1;
+    den = [1 -a];
+    y = filter(num, den, w);
 
-    for n = 2:N
-        y(n) = a*y(n-1) + w(n);
-    end
+    [Pxx,f] = pwelch(y,[],[],1024,'twosided');
+    Pxx_dB = 10*log10(Pxx);
 
-    subplot(length(a_values),1,k);
-    [pxx,f] = pwelch(y,[],[],[],fs);
-    plot(f,10*log10(pxx));
+    % Plot (shifted for centered spectrum)
+
+    subplot(length(alphas),1,k);
+    plot(f-pi, fftshift(Pxx_dB));
+
+    xlabel('Frequency (rad/sample)');
+    ylabel('Power (dB)');
     title(['PSD for \alpha = ', num2str(a)]);
     grid on;
 end
 
-% --------------------------------------
 
-a = 0.9; 
-b = 1;          
-den = [1 -a];   
-  
-[imp, t] = impz(b, den, 50);  
-figure; 
-stem(t, imp); 
-title('Impulse Response for a = 0.9'); 
-xlabel('n'); 
-ylabel('h(n)'); 
-grid on;   
-  
-[H, w] = freqz(b, den, 512); 
-figure; 
-plot(w/pi, abs(H)); 
-title('Frequency Response for a = 0.9'); 
-xlabel('Normalized Frequency'); 
-ylabel('Magnitude'); 
-grid on;  
- 
-figure; 
-plot(w/pi, angle(H)); 
-title('Frequency Response for a = 0.9'); 
-xlabel('Normalized Frequency'); 
-ylabel('Phase'); 
-grid on; 
+% -------------------- (b) --------------------
+alpha = 0.9;
+num = 1;
+den = [1 -alpha];
+
+figure;
+impz(num, den, 50);
+title('Impulse Response ( \alpha = 0.9 )');
+xlabel('n');
+ylabel('h(n)');
+grid on;
+
+% -----------------------------
+[H,f] = freqz(num, den, 512);
+
+figure;
+plot(f/pi, abs(H));
+title('Magnitude Response ( \alpha = 0.9 )');
+xlabel('Normalized Frequency (\times\pi rad/sample)');
+ylabel('|H(e^{j\omega})|');
+grid on;
+
+figure;
+plot(f/pi, angle(H));
+title('Phase Response ( \alpha = 0.9 )');
+xlabel('Normalized Frequency (\times\pi rad/sample)');
+ylabel('Phase (radians)');
+grid on;
